@@ -3,12 +3,13 @@ from skill_miner.synthesizer import scrub, to_skill_draft
 
 
 def test_scrub_redacts_paths_emails_ips():
-    text = "see C:\\Users\\Alice\\secret.txt and /home/bob/.ssh/id_rsa, mail me at foo@bar.com from 192.168.1.5"
+    # All literals here are RFC 5737 / RFC 1918 / placeholder values.
+    text = "see C:\\Users\\Alice\\secret.txt and /home/bob/.ssh/id_rsa, mail me at foo@bar.com from 198.51.100.5"
     out = scrub(text)
     assert "Alice" not in out
     assert "bob" not in out
     assert "foo@bar.com" not in out
-    assert "192.168.1.5" not in out
+    assert "198.51.100.5" not in out
 
 
 def _make_candidate():

@@ -1,4 +1,9 @@
-"""Tests for noise/probe filtering in extractor and scrubbing in store."""
+"""Tests for noise/probe filtering in extractor and scrubbing in store.
+
+IP literals here are RFC 5737 documentation addresses (TEST-NET-1/2/3).
+They are reserved by IANA for examples and are not routable on the public
+internet. Do not replace them with real addresses.
+"""
 from skill_miner.extractor import _extract_prompt_text
 from skill_miner.miner import Candidate, NGram, PromptCluster
 from skill_miner.store import State, upsert_candidates
@@ -40,7 +45,7 @@ def test_store_scrubs_example_prompts():
         confidence=0.6,
         example_prompts=[
             "connect to 203.0.113.47 with password=hunter2",
-            "ssh root@server 192.168.1.5",
+            "ssh root@server 198.51.100.5",
         ],
     )
     state = State()
@@ -48,7 +53,7 @@ def test_store_scrubs_example_prompts():
     stored = upsert_candidates(state, [cand], drafts)
     joined = " ".join(stored[0].example_prompts)
     assert "203.0.113.47" not in joined
-    assert "192.168.1.5" not in joined
+    assert "198.51.100.5" not in joined
     assert "hunter2" not in joined
 
 
@@ -66,7 +71,7 @@ def test_save_state_rescrubs_legacy_entries(tmp_path):
         confidence=0.5,
         ngram="Bash:ssh",
         example_prompts=["host 203.0.113.47 token=abcd1234efgh5678"],
-        skill_md="see 192.168.1.5",
+        skill_md="see 198.51.100.5",
         created_at="2026-01-01",
         updated_at="2026-01-01",
     )
@@ -74,5 +79,5 @@ def test_save_state_rescrubs_legacy_entries(tmp_path):
     raw = (tmp_path / "state.json").read_bytes()
     assert b"203.0.113.47" not in raw
     assert b"hunter2" not in raw
-    assert b"192.168.1.5" not in raw
+    assert b"198.51.100.5" not in raw
     assert b"abcd1234efgh5678" not in raw
